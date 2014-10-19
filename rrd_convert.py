@@ -123,9 +123,10 @@ def rrd_convert(src_filename, dst_filename, arch_dest):
             write_header(arch_dest, ds_cnt, rra_cnt, pdp_step)
 
             ### __rrd_read(rrd->ds_def, ds_def_t, rrd->stat_head->ds_cnt);
-            fd.write(fs.read(40 * ds_cnt))
-            for i in range(0, 10):
-                double_read_write_swap_nan()
+            for ds in range(0, ds_cnt):
+                fd.write(fs.read(40))
+                for i in range(0, 10):
+                    double_read_write_swap_nan()
 
             row_cnt = 0
             ### __rrd_read(rrd->rra_def, rra_def_t, rrd->stat_head->rra_cnt);
