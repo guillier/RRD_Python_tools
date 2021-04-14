@@ -80,7 +80,7 @@ class RRDParser(object):
                 m = re.search(ds_re, line)
                 if m:
                     data_source, field, value = m.groups(0)
-                    if not data_source in ds_dict:
+                    if data_source not in ds_dict:
                         ds_dict[data_source] = {}
 
                     ds_dict[data_source][field] = value.strip('"').strip()
@@ -102,7 +102,7 @@ class RRDParser(object):
                 m = re.search(rra_re, line)
                 if m:
                     rra, field, value = m.groups(0)
-                    if not rra in rra_dict:
+                    if rra not in rra_dict:
                         rra_dict[rra] = {}
 
                     rra_dict[rra][field] = value.strip('"').strip()
@@ -131,10 +131,7 @@ class RRDParser(object):
 
         for key, value in ds.items():
             for item in ['max', 'min']:
-                if value[item] == 'NaN':
-                    value[item] = 'U'
-                else:
-                    value[item] = float(value[item])
+                value[item] = 'U' if value[item] == 'NaN' else float(value[item])
             ds_str = '             DS:%s:' % key
             ds_str += '%s:%s:%s:%s \\' % (
                 value['type'], value['minimal_heartbeat'],
@@ -171,10 +168,7 @@ def main():
                       help="Existing rrdfile to parse")
 
     (options, args) = parser.parse_args()
-    params = {}
-    params['debug'] = options.debug
-    params['file'] = options.file
-
+    params = {'debug': options.debug, 'file': options.file}
     rrd_parser = RRDParser(params)
     rrd_parser.parse()
 
