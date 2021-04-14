@@ -123,14 +123,14 @@ def rrd_convert(src_filename, dst_filename, arch_dest):
             write_header(arch_dest, ds_cnt, rra_cnt, pdp_step)
 
             ### __rrd_read(rrd->ds_def, ds_def_t, rrd->stat_head->ds_cnt);
-            for ds in range(0, ds_cnt):
+            for ds in range(ds_cnt):
                 fd.write(fs.read(40))
-                for i in range(0, 10):
+                for _ in range(10):
                     double_read_write_swap_nan()
 
             row_cnt = 0
             ### __rrd_read(rrd->rra_def, rra_def_t, rrd->stat_head->rra_cnt);
-            for rra in range(0, rra_cnt):
+            for _ in range(rra_cnt):
                 fd.write(fs.read(20))
                 if arch_dest == 'x86_64':
                     fd.write(b'\x00\x00\x00\x00')  # Padding
@@ -142,7 +142,7 @@ def rrd_convert(src_filename, dst_filename, arch_dest):
                     fs.read(4)  # Padding
                 if arch_dest == 'armv6l':
                     fd.write(b'\x00\x00\x00\x00')  # Padding
-                for i in range(0, 10):
+                for _ in range(10):
                     double_read_write_swap_nan()
             long_rw_func()
             long_rw_func()
@@ -151,16 +151,16 @@ def rrd_convert(src_filename, dst_filename, arch_dest):
             fd.write(fs.read(112 * ds_cnt))
 
             ### __rrd_read(rrd->cdp_prep, cdp_prep_t, rrd->stat_head->rra_cnt * rrd->stat_head->ds_cnt);
-            for i in range(0, 10 * ds_cnt * rra_cnt):
+            for _ in range(10 * ds_cnt * rra_cnt):
                 double_read_write_swap_nan()
 
             ### __rrd_read(rrd->rra_ptr, rra_ptr_t, rrd->stat_head->rra_cnt);
-            for rra in range(0, rra_cnt):
+            for rra in range(rra_cnt):
                 long_rw_func()
             length_header_dst = fd.tell()
 
             ###  __rrd_read(rrd->rrd_value, rrd_value_t, row_cnt * rrd->stat_head->ds_cnt);
-            for i in range(0, row_cnt * ds_cnt):
+            for i in range(row_cnt * ds_cnt):
                 double_read_write_swap_nan()
 
             assert(fd.tell() == length_header_dst + 8 * row_cnt * ds_cnt)
